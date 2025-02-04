@@ -7,7 +7,7 @@ pydantic
 python-multipart    
 openai
 elevenlabs
-pipecat-ai==0.0.52
+pipecat-ai==0.0.8
 pipecat-ai[soundfile]
 pipecat-ai[openai]
 pipecat-ai[silero]
