@@ -1,4 +1,4 @@
-pipecat-ai[openai,silero,deepgram,elevenlabs,whisper]
+pipecat-ai[openai,silero,elevenlabs,whisper]
 fastapi
 uvicorn
 python-dotenv
@@ -8,3 +8,5 @@ pydantic
 python-multipart
 openai
 elevenlabs
+pipecat-ai
+pipecat-ai[soundfile]
