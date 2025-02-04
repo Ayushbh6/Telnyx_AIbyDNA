@@ -5,6 +5,7 @@
 #
 
 import json
+import os
 
 import uvicorn
 from bot import run_bot
@@ -43,4 +44,5 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8765)
+    port = int(os.environ.get("PORT", 8765))
+    uvicorn.run(app, host="0.0.0.0", port=port)
