@@ -3,3 +3,8 @@ fastapi
 uvicorn
 python-dotenv
 loguru
+websockets
+pydantic
+python-multipart
+openai
+elevenlabs
