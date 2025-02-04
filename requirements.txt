@@ -1,0 +1,5 @@
+pipecat-ai[openai,silero,deepgram,elevenlabs,whisper]
+fastapi
+uvicorn
+python-dotenv
+loguru
