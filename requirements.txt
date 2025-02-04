@@ -1,12 +1,12 @@
-pipecat-ai[openai,silero,elevenlabs,whisper]
-fastapi
-uvicorn
+pipecat @ git+https://github.com/yourgithubusername/pipecat.git
 python-dotenv
 loguru
+fastapi
+uvicorn
 websockets==12.0
 pydantic
 python-multipart
 openai
 elevenlabs
-pipecat-ai
 pipecat-ai[soundfile]
+pipecat-ai[openai,silero,elevenlabs,whisper]
