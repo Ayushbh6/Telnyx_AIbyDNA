@@ -10,7 +10,7 @@ import sys
 from dotenv import load_dotenv
 from loguru import logger
 
-from pipecat.vad import SileroVADAnalyzer
+from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.frames.frames import EndFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
