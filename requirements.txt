@@ -1,11 +1,10 @@
-pipecat @ git+https://github.com/yourgithubusername/pipecat.git
 python-dotenv
 loguru
 fastapi
 uvicorn
 websockets==12.0
 pydantic
-python-multipart
+python-multipart    
 openai
 elevenlabs
 pipecat-ai[soundfile]
