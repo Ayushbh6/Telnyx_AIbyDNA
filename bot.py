@@ -106,7 +106,7 @@ async def run_bot(
     tts = ElevenLabsTTSService(
         api_key=os.getenv("ELEVENLABS_API_KEY"),
         voice_id="Xp5npDqAjtdG3QS7EahZ",
-        sample_rate=24000,
+        model="eleven_turbo_v2_5",
         params=ElevenLabsTTSService.InputParams(
             stability=0.7,
             similarity_boost=0.8,
