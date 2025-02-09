@@ -2,13 +2,12 @@ python-dotenv
 loguru
 fastapi
 uvicorn
-websockets==12.0
+onnxruntime
 pydantic
 python-multipart    
 openai
 elevenlabs
-pipecat-ai==0.0.9
+pipecat-ai
 pipecat-ai[openai]
-pipecat-ai[silero]
 pipecat-ai[whisper]
 pipecat-ai[elevenlabs]
