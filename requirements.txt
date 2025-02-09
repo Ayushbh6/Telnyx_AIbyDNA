@@ -4,4 +4,6 @@ fastapi
 uvicorn
 onnxruntime
 pydantic
+openai
+elevenlabs
 -e git+https://github.com/pipecat-ai/pipecat.git#egg=pipecat-ai
