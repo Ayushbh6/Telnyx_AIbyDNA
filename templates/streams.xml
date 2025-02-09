@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
+  <Start>
+    <Suppression direction="inbound"/>
+  </Start>
   <Connect>
     <Stream url="wss://telnyxaibydna-production.up.railway.app/ws" bidirectionalMode="rtp"></Stream>
   </Connect>
   <Pause length="40"/>
+  <Stop>
+    <Suppression/>
+  </Stop>
 </Response>
