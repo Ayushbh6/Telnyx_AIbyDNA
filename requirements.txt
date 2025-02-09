@@ -4,10 +4,6 @@ fastapi
 uvicorn
 onnxruntime
 pydantic
-python-multipart    
-openai
-elevenlabs
 pipecat-ai
 pipecat-ai[openai]
-pipecat-ai[whisper]
 pipecat-ai[elevenlabs]
