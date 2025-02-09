@@ -24,6 +24,7 @@ from pipecat.transports.network.fastapi_websocket import (
     FastAPIWebsocketTransport,
 )
 from pipecat.audio.mixers.soundfile_mixer import SoundfileMixer
+from pipecat.frames.frames import MixerEnableFrame, MixerUpdateSettingsFrame
 
 load_dotenv(override=True)
 
@@ -80,7 +81,7 @@ async def run_bot(
     soundfile_mixer = SoundfileMixer(
         sound_files={"office": "assets/office-ambience.mp3"},  # Changed underscore to hyphen
         default_sound="office",
-        volume=2.0,
+        volume=1.0,
     )
 
     transport = FastAPIWebsocketTransport(
@@ -140,6 +141,10 @@ async def run_bot(
 
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
+        # Initialize mixer settings
+        await task.queue_frame(MixerUpdateSettingsFrame({"volume": 0.5}))
+        await task.queue_frame(MixerEnableFrame(True))  # Ensure the mixer is enabled
+
         # Kick off the conversation.
         messages.append({"role": "system", "content": "Παρακαλώ συστήσου στον χρήστη."})
         await task.queue_frames([context_aggregator.user().get_context_frame()])
