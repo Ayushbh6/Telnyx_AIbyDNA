@@ -23,6 +23,7 @@ from pipecat.transports.network.fastapi_websocket import (
     FastAPIWebsocketParams,
     FastAPIWebsocketTransport,
 )
+from pipecat.audio.mixers.soundfile_mixer import SoundfileMixer
 
 load_dotenv(override=True)
 
@@ -75,10 +76,18 @@ async def run_bot(
     outbound_encoding: str,
     inbound_encoding: str,
 ):
+    # Create soundfile mixer for office ambience
+    soundfile_mixer = SoundfileMixer(
+        sound_files={"office": "assets/office_ambience.mp3"},  # Using relative path
+        default_sound="office",
+        volume=0.7,
+    )
+
     transport = FastAPIWebsocketTransport(
         websocket=websocket_client,
         params=FastAPIWebsocketParams(
             audio_out_enabled=True,
+            audio_out_mixer=soundfile_mixer,  # Add the mixer here
             add_wav_header=False,
             vad_enabled=True,
             vad_analyzer=SileroVADAnalyzer(),
@@ -95,7 +104,7 @@ async def run_bot(
     )
     tts = ElevenLabsTTSService(
         api_key=os.getenv("ELEVENLABS_API_KEY"),
-        voice_id="RQUUQQK5dQfy120pjKEw",
+        voice_id="Xp5npDqAjtdG3QS7EahZ",
     )
 
     messages = [
