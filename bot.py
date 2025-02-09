@@ -56,7 +56,7 @@ async def run_bot(
     )
     tts = ElevenLabsTTSService(
         api_key=os.getenv("ELEVENLABS_API_KEY"),
-        voice_id=os.getenv("VOICE_ID"),
+        voice_id="RQUUQQK5dQfy120pjKEw",
     )
 
     messages = [
