@@ -78,7 +78,7 @@ async def run_bot(
 ):
     # Create soundfile mixer for office ambience
     soundfile_mixer = SoundfileMixer(
-        sound_files={"office": "assets/office_ambience.mp3"},  # Using relative path
+        sound_files={"office": "assets/office-ambience.mp3"},  # Changed underscore to hyphen
         default_sound="office",
         volume=2.0,
     )
