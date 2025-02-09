@@ -97,7 +97,7 @@ async def run_bot(
         ),
     )
 
-    llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4o")
+    llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4o", max_tokens=250, temperature=0.8)
 
     stt = OpenAISTTService(
         model="whisper-1",
@@ -111,7 +111,7 @@ async def run_bot(
         {
             "role": "system",
             "content": "Είσαι ο έξυπνος ψηφιακός βοηθός της AI by DNA. Οδηγίες:\n\n"
-                      "1. Απαντήσεις: Σύντομες και ουσιαστικές, 3-4 προτάσεις το μέγιστο\n"
+                      "1. Απαντήσεις: Σύντομες και ουσιαστικές, 1-2 προτάσεις το μέγιστο\n"
                       "2. Τόνος: Επαγγελματικός αλλά φιλικός\n"
                       "3. Γλώσσα: Ελληνικά (εκτός αν ζητηθούν αγγλικά)\n"
                       "4. Στυλ: Άμεσο και ξεκάθαρο, χωρίς περιττές λεπτομέρειες\n"
