@@ -80,7 +80,7 @@ async def run_bot(
     soundfile_mixer = SoundfileMixer(
         sound_files={"office": "assets/office_ambience.mp3"},  # Using relative path
         default_sound="office",
-        volume=0.7,
+        volume=1.0,
     )
 
     transport = FastAPIWebsocketTransport(
