@@ -138,6 +138,7 @@ async def run_bot(
             transport.input(),  # Websocket input from client
             stt,  # Speech-To-Text
             context_aggregator.user(),
+            lambda _: transport.send_text("Δώστε μου λίγο χρόνο να επεξεργαστώ την ερώτησή σας..."),
             llm,  # LLM
             tts,  # Text-To-Speech
             transport.output(),  # Websocket output to client
