@@ -23,8 +23,6 @@ from pipecat.transports.network.fastapi_websocket import (
     FastAPIWebsocketParams,
     FastAPIWebsocketTransport,
 )
-from pipecat.audio.mixers.soundfile_mixer import SoundfileMixer
-from pipecat.frames.frames import MixerEnableFrame, MixerUpdateSettingsFrame
 
 load_dotenv(override=True)
 
@@ -88,18 +86,10 @@ async def run_bot(
     outbound_encoding: str,
     inbound_encoding: str,
 ):
-    # Create soundfile mixer for office ambience
-    soundfile_mixer = SoundfileMixer(
-        sound_files={"office": "assets/office-ambience.mp3"},  # Changed underscore to hyphen
-        default_sound="office",
-        volume=1.0,
-    )
-
     transport = FastAPIWebsocketTransport(
         websocket=websocket_client,
         params=FastAPIWebsocketParams(
             audio_out_enabled=True,
-            audio_out_mixer=soundfile_mixer,  # Add the mixer here
             add_wav_header=False,
             vad_enabled=True,
             vad_analyzer=SileroVADAnalyzer(),
@@ -158,18 +148,14 @@ async def run_bot(
     task = PipelineTask(
         pipeline,
         params=PipelineParams(
-            #audio_in_sample_rate=8000,
-            #audio_out_sample_rate=8000,
-            allow_interruptions=False,
+            audio_in_sample_rate=8000,
+            audio_out_sample_rate=8000,
+            allow_interruptions=True,
         ),
     )
 
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
-        # Initialize mixer settings
-        await task.queue_frame(MixerUpdateSettingsFrame({"volume": 0.5}))
-        await task.queue_frame(MixerEnableFrame(True))  # Ensure the mixer is enabled
-
         # Kick off the conversation with a cheerful welcome
         messages.append({"role": "system", "content": "Καλωσόρισες! Είμαι ο ψηφιακός βοηθός της AI by DNA και χαίρομαι που είσαι εδώ!"})
         await task.queue_frames([context_aggregator.user().get_context_frame()])
