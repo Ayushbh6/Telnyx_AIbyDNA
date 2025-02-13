@@ -105,7 +105,7 @@ async def run_bot(
     )
     tts = ElevenLabsTTSService(
         api_key=os.getenv("ELEVENLABS_API_KEY"),
-        voice_id="Xp5npDqAjtdG3QS7EahZ",
+        voice_id="IvVXvLXxiX8iXKrLlER8",
         model="eleven_turbo_v2_5",
         params=ElevenLabsTTSService.InputParams(
             stability=0.7,
@@ -116,14 +116,16 @@ async def run_bot(
     )
     messages = [
         {
-            "role": "system",
+            "role": "system", 
             "content": "Είσαι ο έξυπνος ψηφιακός βοηθός της AI by DNA. Οδηγίες:\n\n"
-                      "1. Απαντήσεις: Σύντομες και ουσιαστικές, 1-2 προτάσεις το μέγιστο\n"
-                      "2. Τόνος: Επαγγελματικός αλλά φιλικός\n"
+                      "1. Απαντήσεις: Σύντομες και φιλικές, 1-2 προτάσεις το μέγιστο\n"
+                      "2. Τόνος: Ζεστός και προσιτός\n"
                       "3. Γλώσσα: Ελληνικά (εκτός αν ζητηθούν αγγλικά)\n"
-                      "4. Στυλ: Άμεσο και ξεκάθαρο, χωρίς περιττές λεπτομέρειες\n"
-                      "5. Μορφή: Απλό κείμενο χωρίς ειδικούς χαρακτήρες (για μετατροπή σε ήχο)\n\n"
-                      "Επίσημες πληροφορίες της εταιρείας:\n" + AI_by_DNA_greek,
+                      "4. Στυλ: Απλό και κατανοητό\n"
+                      "5. Πρώτη επαφή: Ξεκίνα με σύντομο χαιρετισμό και μια απλή εισαγωγή\n"
+                      "6. Λεπτομέρειες: Μοιράσου περισσότερες πληροφορίες μόνο αν ζητηθούν\n"
+                      "7. Μορφή: Απλό κείμενο χωρίς ειδικούς χαρακτήρες\n\n"
+                      "Βασικές πληροφορίες εταιρείας (για χρήση μόνο αν ζητηθούν):\n" + AI_by_DNA_greek,
         },
     ]
 
@@ -157,8 +159,8 @@ async def run_bot(
         await task.queue_frame(MixerUpdateSettingsFrame({"volume": 0.5}))
         await task.queue_frame(MixerEnableFrame(True))  # Ensure the mixer is enabled
 
-        # Kick off the conversation.
-        messages.append({"role": "system", "content": "Παρακαλώ συστήσου στον χρήστη."})
+        # Kick off the conversation with a cheerful welcome
+        messages.append({"role": "system", "content": "Καλωσόρισες! Είμαι ο ψηφιακός βοηθός της AI by DNA και χαίρομαι που είσαι εδώ!"})
         await task.queue_frames([context_aggregator.user().get_context_frame()])
 
     @transport.event_handler("on_client_disconnected")
