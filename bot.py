@@ -24,7 +24,11 @@ from pipecat.transports.network.fastapi_websocket import (
     FastAPIWebsocketTransport,
 )
 from openai.types.chat import ChatCompletionToolParam
-from pipecat.frames.frames import TTSSpeakFrame
+from pipecat.frames.frames import TTSSpeakFrame, OutputAudioRawFrame
+
+from pydub import AudioSegment
+import numpy as np
+from pipecat.processors.frame_processor import FrameProcessor, FrameDirection
 
 load_dotenv(override=True)
 
@@ -157,6 +161,10 @@ async def run_bot(
     context = OpenAILLMContext(messages, tools)
     context_aggregator = llm.create_context_aggregator(context)
 
+    # Determine the full path for the background ambience audio file
+    background_audio_path = os.path.join(os.path.dirname(__file__), "static", "office-ambience.mp3")
+    background_mixer = BackgroundAmbienceMixer(background_audio_path)
+
     pipeline = Pipeline(
         [
             transport.input(),  # Websocket input from client
@@ -164,6 +172,7 @@ async def run_bot(
             context_aggregator.user(),
             llm,  # LLM with tool support!
             tts,  # Text-To-Speech
+            background_mixer,  # Mix background ambience into TTS output
             transport.output(),  # Websocket output to client
             context_aggregator.assistant(),
         ]
@@ -199,3 +208,56 @@ async def start_get_company_info(function_name, llm, context):
 async def get_company_info(function_name, tool_call_id, args, llm, context, result_callback):
     # Return the AI_by_DNA_greek company information.
     await result_callback({"company_info": AI_by_DNA_greek})
+
+class BackgroundAmbienceMixer(FrameProcessor):
+    """
+    A processor that intercepts output audio frames (OutputAudioRawFrame)
+    and mixes in a background ambience audio, looping over the file.
+    """
+    def __init__(self, file_path, mix_ratio_primary=0.8, mix_ratio_background=0.2):
+        super().__init__()
+        self.mix_ratio_primary = mix_ratio_primary
+        self.mix_ratio_background = mix_ratio_background
+
+        # Load the background ambience file (assumed to be an MP3)
+        self.audio_segment = AudioSegment.from_file(file_path)
+        # Convert it to the desired format (e.g. 8000Hz, mono, 16-bit PCM)
+        self.audio_segment = (
+            self.audio_segment
+            .set_frame_rate(8000)
+            .set_channels(1)
+            .set_sample_width(2)
+        )
+        samples = self.audio_segment.get_array_of_samples()
+        self.background_samples = np.array(samples, dtype=np.int16)
+        self.bg_length = len(self.background_samples)
+        self.pointer = 0
+
+    async def process_frame(self, frame: Frame, direction: FrameDirection):
+        if isinstance(frame, OutputAudioRawFrame):
+            # Convert primary audio payload to a numpy array
+            primary = np.frombuffer(frame.payload, dtype=np.int16).astype(np.float32)
+            num_samples = len(primary)
+
+            # Determine the background slice to use
+            start = self.pointer
+            end = self.pointer + num_samples
+            if end <= self.bg_length:
+                bg_slice = self.background_samples[start:end].astype(np.float32)
+            else:
+                bg_slice1 = self.background_samples[start:].astype(np.float32)
+                bg_slice2 = self.background_samples[:(end - self.bg_length)].astype(np.float32)
+                bg_slice = np.concatenate([bg_slice1, bg_slice2])
+
+            # Update pointer (wrap around on loop)
+            self.pointer = (self.pointer + num_samples) % self.bg_length
+
+            # Mix primary output with background slice using the defined ratios
+            mixed = primary * self.mix_ratio_primary + bg_slice * self.mix_ratio_background
+            mixed = np.clip(mixed, -32768, 32767).astype(np.int16)
+
+            # Create and push a new output audio frame with the mixed audio
+            mixed_frame = OutputAudioRawFrame(mixed.tobytes(), frame.sample_rate, frame.channels)
+            await self.push_frame(mixed_frame)
+        else:
+            await self.push_frame(frame, direction)
