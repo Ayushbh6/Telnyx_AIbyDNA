@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from loguru import logger
 
 from pipecat.audio.vad.silero import SileroVADAnalyzer
+from pipecat.audio.mixers.soundfile_mixer import SoundfileMixer
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -120,21 +121,22 @@ async def run_bot(
             use_speaker_boost=True
         )
     )
+    
+    # Add background noise mixer using the office ambience sound file.
+    # The relative path is constructed so that it works in production (e.g. on Railways).
+    background_noise_path = os.path.join(os.path.dirname(__file__), "static", "office-ambience.mp3")
+    soundfile_mixer = SoundfileMixer(
+        sound_files={"office": background_noise_path},
+        default_sound="office",
+        volume=1.0,
+    )
+
     # UPDATED SYSTEM PROMPT (removed the appended company text)
     messages = [
         {
-            "role": "system", 
+            "role": "system",
             "content": (
-                "Είσαι ο έξυπνος ψηφιακός βοηθός της AI by DNA. ΠΟΛΥ ΣΗΜΑΝΤΙΚΟ:\n\n"
-                "ΠΡΕΠΕΙ ΠΑΝΤΑ να συστήνεσαι ως 'ο ψηφιακός βοηθός της AI by DNA' και να αναφέρεις ότι είσαι εδώ για να βοηθήσεις με πληροφορίες για την εταιρεία. Αυτό είναι ΥΠΟΧΡΕΩΤΙΚΟ σε κάθε πρώτη επαφή.\n\n"
-                "Άλλες οδηγίες:\n"
-                "1. Απαντήσεις: Σύντομες και φιλικές, 1-2 προτάσεις το μέγιστο\n"
-                "2. Τόνος: Ζεστός και προσιτός\n"
-                "3. Γλώσσα: Ελληνικά (εκτός αν ζητηθούν αγγλικά)\n"
-                "4. Στυλ: Απλό και κατανοητό\n"
-                "5. Λεπτομέρειες: Μοιράσου περισσότερες πληροφορίες μόνο αν ζητηθούν\n"
-                "6. Μορφή: Απλό κείμενο χωρίς ειδικούς χαρακτήρες\n\n"
-                "Για λεπτομέρειες σχετικά με την AI by DNA, καλό είναι να καλέσεις τη λειτουργία 'get_company_info'."
+                "Είσαι ο 'AIby DNA Assistant', ο επίσημος ψηφιακός βοηθός της AI by DNA. Πάντα πρέπει να παρουσιάζεσαι ως 'AIby DNA Assistant' και να αναφέρεις ότι είσαι εδώ για να παρέχεις σύντομες, κατανοητές και φιλικές πληροφορίες για την εταιρεία μας, τις υπηρεσίες και τις λύσεις της. Ξεκίνα κάθε συνομιλία στα Ελληνικά, προσαρμόζοντας σε Αγγλικά μόνο αν ο χρήστης το ζητήσει ρητά. Οι απαντήσεις σου πρέπει να είναι 1-2 σύντομες προτάσεις, με ζεστό, ενθουσιώδη και προσιτό τόνο. Για λεπτομέρειες σχετικά με την AI by DNA, χρησιμοποίησε τη λειτουργία 'get_company_info'."
             ),
         },
     ]
@@ -145,7 +147,7 @@ async def run_bot(
             type="function",
             function={
                 "name": "get_company_info",
-                "description": "Προσφέρει λεπτομέρειες για την AI by DNA, τις υπηρεσίες και τις επιδόσεις της.",
+                "description": "Προσφέρει λεπτομέρειες για την AI by DNA, τις υπηρεσίες και τις λύσεις της, με έμφαση στην καινοτομία, την αξιοπιστία και τη φιλική εξυπηρέτηση.",
                 "parameters": {
                     "type": "object",
                     "properties": {}
@@ -164,6 +166,7 @@ async def run_bot(
             context_aggregator.user(),
             llm,  # LLM with tool support!
             tts,  # Text-To-Speech
+            soundfile_mixer,  # Background noise mixer added to pipeline
             transport.output(),  # Websocket output to client
             context_aggregator.assistant(),
         ]
@@ -181,7 +184,10 @@ async def run_bot(
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         # Kick off the conversation with a cheerful welcome
-        messages.append({"role": "system", "content": "Καλωσόρισες! Είμαι ο ψηφιακός βοηθός της AI by DNA. Είμαι εδώ για να σε βοηθήσω με οποιαδήποτε πληροφορία χρειάζεσαι σχετικά με την εταιρεία μας, τις υπηρεσίες και τις λύσεις μας. Πώς μπορώ να σε εξυπηρετήσω σήμερα;"})
+        messages.append({
+            "role": "system",
+            "content": "Χαίρετε! Είμαι ο 'AIby DNA Assistant', ο επίσημος ψηφιακός βοηθός της AI by DNA, έτοιμος να σας παρέχω σύντομες και φιλικές πληροφορίες για την εταιρεία μας. Πώς μπορώ να σας εξυπηρετήσω σήμερα;"
+        })
         await task.queue_frames([context_aggregator.user().get_context_frame()])
 
     @transport.event_handler("on_client_disconnected")
