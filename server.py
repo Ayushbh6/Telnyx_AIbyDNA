@@ -12,8 +12,12 @@ from bot import run_bot
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
+
+# Mount the static directory so that your audio file is accessible.
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.add_middleware(
     CORSMiddleware,

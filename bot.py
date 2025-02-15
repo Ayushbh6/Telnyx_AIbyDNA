@@ -181,7 +181,7 @@ async def run_bot(
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         # Kick off the conversation with a cheerful welcome
-        messages.append({"role": "system", "content": "Καλωσόρισες! Είμαι ο ψηφιακός βοηθός της AI by DNA και χαίρομαι που είσαι εδώ!"})
+        messages.append({"role": "system", "content": "Καλωσόρισες! Είμαι ο ψηφιακός βοηθός της AI by DNA. Είμαι εδώ για να σε βοηθήσω με οποιαδήποτε πληροφορία χρειάζεσαι σχετικά με την εταιρεία μας, τις υπηρεσίες και τις λύσεις μας. Πώς μπορώ να σε εξυπηρετήσω σήμερα;"})
         await task.queue_frames([context_aggregator.user().get_context_frame()])
 
     @transport.event_handler("on_client_disconnected")
