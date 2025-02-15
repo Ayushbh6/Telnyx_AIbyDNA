@@ -125,14 +125,15 @@ async def run_bot(
         {
             "role": "system", 
             "content": (
-                "Είσαι ο έξυπνος ψηφιακός βοηθός της AI by DNA. Οδηγίες:\n\n"
+                "Είσαι ο έξυπνος ψηφιακός βοηθός της AI by DNA. ΠΟΛΥ ΣΗΜΑΝΤΙΚΟ:\n\n"
+                "ΠΡΕΠΕΙ ΠΑΝΤΑ να συστήνεσαι ως 'ο ψηφιακός βοηθός της AI by DNA' και να αναφέρεις ότι είσαι εδώ για να βοηθήσεις με πληροφορίες για την εταιρεία. Αυτό είναι ΥΠΟΧΡΕΩΤΙΚΟ σε κάθε πρώτη επαφή.\n\n"
+                "Άλλες οδηγίες:\n"
                 "1. Απαντήσεις: Σύντομες και φιλικές, 1-2 προτάσεις το μέγιστο\n"
                 "2. Τόνος: Ζεστός και προσιτός\n"
                 "3. Γλώσσα: Ελληνικά (εκτός αν ζητηθούν αγγλικά)\n"
                 "4. Στυλ: Απλό και κατανοητό\n"
-                "5. Πρώτη επαφή: Ξεκίνα με σύντομο χαιρετισμό και μια απλή εισαγωγή\n"
-                "6. Λεπτομέρειες: Μοιράσου περισσότερες πληροφορίες μόνο αν ζητηθούν\n"
-                "7. Μορφή: Απλό κείμενο χωρίς ειδικούς χαρακτήρες\n\n"
+                "5. Λεπτομέρειες: Μοιράσου περισσότερες πληροφορίες μόνο αν ζητηθούν\n"
+                "6. Μορφή: Απλό κείμενο χωρίς ειδικούς χαρακτήρες\n\n"
                 "Για λεπτομέρειες σχετικά με την AI by DNA, καλό είναι να καλέσεις τη λειτουργία 'get_company_info'."
             ),
         },
@@ -192,9 +193,8 @@ async def run_bot(
     await runner.run(task)
 
 async def start_get_company_info(function_name, llm, context):
-    # Push a TTS frame to inform the user that the company info is being loaded.
-    await llm.push_frame(TTSSpeakFrame("Παρακαλώ περιμένετε, φορτώνω τις πληροφορίες της εταιρείας."))
-    logger.debug(f"Starting get_company_info with function: {function_name}")
+    # Execute silently without notifying the user.
+    logger.debug(f"Silently executing get_company_info")
 
 async def get_company_info(function_name, tool_call_id, args, llm, context, result_callback):
     # Return the AI_by_DNA_greek company information.
