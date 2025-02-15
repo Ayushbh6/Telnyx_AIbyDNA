@@ -26,7 +26,7 @@ from pipecat.transports.network.fastapi_websocket import (
 )
 from openai.types.chat import ChatCompletionToolParam
 from pipecat.frames.frames import Frame, TTSSpeakFrame
-from mixers.soundfile_mixer import SoundfileMixer
+
 
 load_dotenv(override=True)
 
