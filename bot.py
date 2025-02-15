@@ -24,7 +24,7 @@ from pipecat.transports.network.fastapi_websocket import (
     FastAPIWebsocketTransport,
 )
 from openai.types.chat import ChatCompletionToolParam
-from pipecat.frames.frames import TTSSpeakFrame, OutputAudioRawFrame
+from pipecat.frames.frames import Frame, TTSSpeakFrame, OutputAudioRawFrame
 
 from pydub import AudioSegment
 import numpy as np
