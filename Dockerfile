@@ -25,7 +25,7 @@ COPY . .
 RUN mkdir -p static && \
     if [ ! -f static/office-ambience.mp3 ]; then \
         echo "Downloading office-ambience.mp3..." && \
-        curl -L -o static/office-ambience.mp3 https://github.com/pipecat-ai/pipecat/raw/main/examples/foundational/assets/office-ambience.mp3; \
+        curl -L -o static/office-ambience.mp3 https://raw.githubusercontent.com/Ayushbh6/Telnyx_AIbyDNA/main/static/office-ambience.mp3; \
     fi
 
 # Verify the audio file exists and has content
