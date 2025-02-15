@@ -23,6 +23,8 @@ from pipecat.transports.network.fastapi_websocket import (
     FastAPIWebsocketParams,
     FastAPIWebsocketTransport,
 )
+from openai.types.chat import ChatCompletionToolParam
+from pipecat.frames.frames import TTSSpeakFrame
 
 load_dotenv(override=True)
 
@@ -50,7 +52,7 @@ AI by DNA – Ένας οργανισμός μετασχηματισμού μέ�
 Απελευθερώστε τη δύναμη του AI by Phone
 Οι ανθρωποκεντρικοί AI Voice Assistants μεταμορφώνουν τον τρόπο χρήσης των τηλεφωνικών γραμμών
 Βελτιώστε τη διαθεσιμότητα επικοινωνίας, την πολυγλωσσική κάλυψη και την ικανοποίηση των πελατών
-Επεκτείνετε τις δυνατότητές σας με το AI by Clone
+Επεκτείνετε τις δυνατότητες σας με το AI by Clone
 Video-based agents που χρησιμοποιούν ανθρώπινα avatars
 Αλληλεπιδρούν και συνομιλούν με τους πελάτες στο δικό σας γνωσιακό πλαίσιοΜεταμορφώστε την εμπειρία των phygital πελατών σας
 Μηχανές Υποστήριξης Αποφάσεων - Decision Support Engines
@@ -100,6 +102,9 @@ async def run_bot(
 
     llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4o", max_tokens=250, temperature=0.8)
 
+    # REGISTER THE 'get_company_info' TOOL FUNCTION
+    llm.register_function("get_company_info", get_company_info, start_callback=start_get_company_info)
+
     stt = OpenAISTTService(
         model="whisper-1",
         api_key=os.getenv("OPENAI_API_KEY")
@@ -115,22 +120,40 @@ async def run_bot(
             use_speaker_boost=True
         )
     )
+    # UPDATED SYSTEM PROMPT (removed the appended company text)
     messages = [
         {
             "role": "system", 
-            "content": "Είσαι ο έξυπνος ψηφιακός βοηθός της AI by DNA. Οδηγίες:\n\n"
-                      "1. Απαντήσεις: Σύντομες και φιλικές, 1-2 προτάσεις το μέγιστο\n"
-                      "2. Τόνος: Ζεστός και προσιτός\n"
-                      "3. Γλώσσα: Ελληνικά (εκτός αν ζητηθούν αγγλικά)\n"
-                      "4. Στυλ: Απλό και κατανοητό\n"
-                      "5. Πρώτη επαφή: Ξεκίνα με σύντομο χαιρετισμό και μια απλή εισαγωγή\n"
-                      "6. Λεπτομέρειες: Μοιράσου περισσότερες πληροφορίες μόνο αν ζητηθούν\n"
-                      "7. Μορφή: Απλό κείμενο χωρίς ειδικούς χαρακτήρες\n\n"
-                      "Βασικές πληροφορίες εταιρείας (για χρήση μόνο αν ζητηθούν):\n" + AI_by_DNA_greek,
+            "content": (
+                "Είσαι ο έξυπνος ψηφιακός βοηθός της AI by DNA. Οδηγίες:\n\n"
+                "1. Απαντήσεις: Σύντομες και φιλικές, 1-2 προτάσεις το μέγιστο\n"
+                "2. Τόνος: Ζεστός και προσιτός\n"
+                "3. Γλώσσα: Ελληνικά (εκτός αν ζητηθούν αγγλικά)\n"
+                "4. Στυλ: Απλό και κατανοητό\n"
+                "5. Πρώτη επαφή: Ξεκίνα με σύντομο χαιρετισμό και μια απλή εισαγωγή\n"
+                "6. Λεπτομέρειες: Μοιράσου περισσότερες πληροφορίες μόνο αν ζητηθούν\n"
+                "7. Μορφή: Απλό κείμενο χωρίς ειδικούς χαρακτήρες\n\n"
+                "Για λεπτομέρειες σχετικά με την AI by DNA, καλό είναι να καλέσεις τη λειτουργία 'get_company_info'."
+            ),
         },
     ]
 
-    context = OpenAILLMContext(messages)
+    # ADD THE TOOL DEFINITION FOR THE COMPANY INFO
+    tools = [
+        ChatCompletionToolParam(
+            type="function",
+            function={
+                "name": "get_company_info",
+                "description": "Προσφέρει λεπτομέρειες για την AI by DNA, τις υπηρεσίες και τις επιδόσεις της.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {}
+                },
+            },
+        )
+    ]
+    # CREATE THE CONTEXT WITH BOTH MESSAGES AND TOOLS
+    context = OpenAILLMContext(messages, tools)
     context_aggregator = llm.create_context_aggregator(context)
 
     pipeline = Pipeline(
@@ -138,7 +161,7 @@ async def run_bot(
             transport.input(),  # Websocket input from client
             stt,  # Speech-To-Text
             context_aggregator.user(),
-            llm,  # LLM
+            llm,  # LLM with tool support!
             tts,  # Text-To-Speech
             transport.output(),  # Websocket output to client
             context_aggregator.assistant(),
@@ -167,3 +190,12 @@ async def run_bot(
     runner = PipelineRunner(handle_sigint=False)
 
     await runner.run(task)
+
+async def start_get_company_info(function_name, llm, context):
+    # Push a TTS frame to inform the user that the company info is being loaded.
+    await llm.push_frame(TTSSpeakFrame("Παρακαλώ περιμένετε, φορτώνω τις πληροφορίες της εταιρείας."))
+    logger.debug(f"Starting get_company_info with function: {function_name}")
+
+async def get_company_info(function_name, tool_call_id, args, llm, context, result_callback):
+    # Return the AI_by_DNA_greek company information.
+    await result_callback({"company_info": AI_by_DNA_greek})
