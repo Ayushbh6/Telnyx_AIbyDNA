@@ -25,7 +25,7 @@ from pipecat.transports.network.fastapi_websocket import (
     FastAPIWebsocketTransport,
 )
 from openai.types.chat import ChatCompletionToolParam
-from pipecat.frames.frames import Frame, TTSSpeakFrame
+from pipecat.frames.frames import Frame, TTSSpeakFrame, MixerEnableFrame
 
 
 load_dotenv(override=True)
@@ -90,11 +90,28 @@ async def run_bot(
     outbound_encoding: str,
     inbound_encoding: str,
 ):
+    
+    # More robust path resolution for the audio file
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    background_noise_path = os.path.join(current_dir, "static", "office-ambience.mp3")
+    
+    # Add debug logging
+    logger.debug(f"Loading background noise from: {background_noise_path}")
+    if not os.path.exists(background_noise_path):
+        logger.error(f"Background noise file not found at: {background_noise_path}")
+        raise FileNotFoundError(f"Background noise file not found at: {background_noise_path}")
+    
+    soundfile_mixer = SoundfileMixer(
+        sound_files={"office": background_noise_path},
+        default_sound="office",
+        volume=1.0,
+    )
+    
     transport = FastAPIWebsocketTransport(
         websocket=websocket_client,
         params=FastAPIWebsocketParams(
             audio_out_enabled=True,
-            add_wav_header=False,
+            audio_out_mixer=soundfile_mixer,
             vad_enabled=True,
             vad_analyzer=SileroVADAnalyzer(),
             vad_audio_passthrough=True,
@@ -123,15 +140,7 @@ async def run_bot(
         )
     )
     
-    # Add background noise mixer using the office ambience sound file.
-    # The relative path is constructed so that it works in production (e.g. on Railways).
-    background_noise_path = os.path.join(os.path.dirname(__file__), "static", "office-ambience.mp3")
-    soundfile_mixer = SoundfileMixer(
-        sound_files={"office": background_noise_path},
-        default_sound="office",
-        volume=1.0,
-    )
-
+    
     # UPDATED SYSTEM PROMPT (removed the appended company text)
     messages = [
         {
@@ -167,7 +176,6 @@ async def run_bot(
             context_aggregator.user(),
             llm,  # LLM with tool support!
             tts,  # Text-To-Speech
-            soundfile_mixer,  # Background noise mixer added to pipeline
             transport.output(),  # Websocket output to client
             context_aggregator.assistant(),
         ]
@@ -176,14 +184,17 @@ async def run_bot(
     task = PipelineTask(
         pipeline,
         params=PipelineParams(
-            #audio_in_sample_rate=8000,
-            #audio_out_sample_rate=8000,
             allow_interruptions=False,
+            enable_metrics=True,
+            enable_usage_metrics=True,
+            report_only_initial_ttfb=True,
         ),
     )
 
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
+        # Enable the background noise mixer
+        await task.queue_frame(MixerEnableFrame(True))
         # Kick off the conversation with a cheerful welcome
         messages.append({
             "role": "system",

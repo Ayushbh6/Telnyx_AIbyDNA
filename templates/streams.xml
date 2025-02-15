@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Start>
-    <Suppression direction="inbound"/>
-  </Start>
-  <!-- Play the office ambience in a continuous loop -->
-  <Play url="https://telnyxaibydna-production.up.railway.app/static/office-ambience.mp3" loop="true"/>
   <Connect>
     <Stream url="wss://telnyxaibydna-production.up.railway.app/ws" bidirectionalMode="rtp"></Stream>
   </Connect>
   <Pause length="40"/>
-  <Stop>
-    <Suppression/>
-  </Stop>
 </Response>

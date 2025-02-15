@@ -161,5 +161,5 @@ cython_debug/
 runpod.toml
 
 # Allow audio files in assets
-!assets/*.mp3
-!assets/*.wav
+!static/*.mp3
+!static/*.wav
