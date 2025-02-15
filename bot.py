@@ -216,6 +216,9 @@ class BackgroundAmbienceMixer(FrameProcessor):
     """
     def __init__(self, file_path, mix_ratio_primary=0.8, mix_ratio_background=0.2):
         super().__init__()
+        import asyncio
+        # Manually set up the internal input queue that the base class normally creates.
+        self._FrameProcessor__input_queue = asyncio.Queue()
         self.mix_ratio_primary = mix_ratio_primary
         self.mix_ratio_background = mix_ratio_background
 
