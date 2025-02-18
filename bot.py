@@ -18,6 +18,7 @@ from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
 from pipecat.serializers.telnyx import TelnyxFrameSerializer
 from pipecat.services.deepgram import DeepgramSTTService
+from deepgram import LiveOptions
 from pipecat.services.elevenlabs import ElevenLabsTTSService
 from pipecat.services.openai import OpenAILLMService
 from pipecat.transports.network.fastapi_websocket import (
