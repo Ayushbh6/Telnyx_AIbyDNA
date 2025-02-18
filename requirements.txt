@@ -7,6 +7,7 @@ pydub
 pydantic
 openai
 soundfile
+pipecat-ai[deepgram]
 elevenlabs
 deepgram-sdk
 -e git+https://github.com/pipecat-ai/pipecat.git#egg=pipecat-ai
