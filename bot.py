@@ -17,7 +17,7 @@ from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
 from pipecat.serializers.telnyx import TelnyxFrameSerializer
-from pipecat.services.openai import OpenAISTTService
+from pipecat.services.deepgram import DeepgramSTTService
 from pipecat.services.elevenlabs import ElevenLabsTTSService
 from pipecat.services.openai import OpenAILLMService
 from pipecat.transports.network.fastapi_websocket import (
@@ -124,9 +124,14 @@ async def run_bot(
     # REGISTER THE 'get_company_info' TOOL FUNCTION
     llm.register_function("get_company_info", get_company_info, start_callback=start_get_company_info)
 
-    stt = OpenAISTTService(
-        model="whisper-1",
-        api_key=os.getenv("OPENAI_API_KEY")
+    stt = DeepgramSTTService(
+        api_key=os.getenv("DEEPGRAM_API_KEY"),
+        model="nova-2",
+        smart_format=True,
+        diarize=True,
+        utterances=True,
+        utterances_vad=True,
+        utterances_vad_threshold=0.5,
     )
     tts = ElevenLabsTTSService(
         api_key=os.getenv("ELEVENLABS_API_KEY"),
