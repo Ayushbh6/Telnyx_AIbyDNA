@@ -128,7 +128,7 @@ async def run_bot(
     stt = DeepgramSTTService(
             api_key="your-api-key",
             live_options=LiveOptions(
-                model="nova-2-general",
+                model="nova-2",
                 language="el-GR",
                 smart_format=True,
                 vad_events=True
