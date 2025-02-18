@@ -129,9 +129,7 @@ async def run_bot(
             api_key=os.getenv("DEEPGRAM_API_KEY"),
             live_options=LiveOptions(
                 model="nova-2-general",
-                language="el-GR",
-                smart_format=True,
-                vad_events=True
+                language="el-GR"
             )
         )
             
