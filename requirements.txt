@@ -8,5 +8,5 @@ pydantic
 openai
 soundfile
 elevenlabs
-deepgram
+deepgram-sdk
 -e git+https://github.com/pipecat-ai/pipecat.git#egg=pipecat-ai
