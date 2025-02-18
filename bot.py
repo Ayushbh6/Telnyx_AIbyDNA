@@ -126,7 +126,7 @@ async def run_bot(
     llm.register_function("get_company_info", get_company_info, start_callback=start_get_company_info)
 
     stt = DeepgramSTTService(
-            api_key=os.getenv("DEEPGRAM_API_KEY"), live_options=LiveOptions(language="el")
+            api_key=os.getenv("DEEPGRAM_API_KEY"), live_options=LiveOptions(language="el"), model="nova-2"
         )
     
     tts = ElevenLabsTTSService(
