@@ -105,7 +105,7 @@ async def run_bot(
     soundfile_mixer = SoundfileMixer(
         sound_files={"office": background_noise_path},
         default_sound="office",
-        volume=2.0,
+        volume=0.9,
     )
     
     transport = FastAPIWebsocketTransport(
