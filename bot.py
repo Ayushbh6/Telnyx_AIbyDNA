@@ -202,7 +202,7 @@ async def run_bot(
         # Kick off the conversation with a cheerful welcome
         messages.append({
             "role": "system",
-            "content": "Χαίρετε! Είμαι η ψυφιακή βοηθός της 'AI by DNA'. Πώς μπορώ να σας εξυπηρετήσω σήμερα;"
+            "content": "Χαίρετε! Είμαι η Μυρτώ η ψυφιακή βοηθός της 'AI by DNA'. Πώς μπορώ να σας εξυπηρετήσω σήμερα;"
         })
         await task.queue_frames([context_aggregator.user().get_context_frame()])
 
