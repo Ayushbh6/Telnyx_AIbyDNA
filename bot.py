@@ -134,12 +134,12 @@ async def run_bot(
             
     tts = ElevenLabsTTSService(
         api_key=os.getenv("ELEVENLABS_API_KEY"),
-        voice_id="avctzESN0ZVunbCfNirW",
+        voice_id="IvVXvLXxiX8iXKrLlER8",
         model="eleven_turbo_v2_5",
         params=ElevenLabsTTSService.InputParams(
-            stability=0.5,
-            similarity_boost=0.7,
-            style=0,
+            stability=0.66,
+            similarity_boost=0.36,
+            style=0.7,
             use_speaker_boost=True
         )
     )
