@@ -105,7 +105,7 @@ async def run_bot(
     soundfile_mixer = SoundfileMixer(
         sound_files={"office": background_noise_path},
         default_sound="office",
-        volume=0.9,
+        volume=0.7,
     )
     
     transport = FastAPIWebsocketTransport(
@@ -134,12 +134,12 @@ async def run_bot(
             
     tts = ElevenLabsTTSService(
         api_key=os.getenv("ELEVENLABS_API_KEY"),
-        voice_id="IvVXvLXxiX8iXKrLlER8",
+        voice_id="avctzESN0ZVunbCfNirW",
         model="eleven_turbo_v2_5",
         params=ElevenLabsTTSService.InputParams(
-            stability=0.7,
-            similarity_boost=0.8,
-            style=0.5,
+            stability=0.5,
+            similarity_boost=0.7,
+            style=0,
             use_speaker_boost=True
         )
     )
