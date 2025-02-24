@@ -145,26 +145,34 @@ async def run_bot(
     )
     
     
-    # UPDATED SYSTEM PROMPT (removed the appended company text)
+    # UPDATED SYSTEM PROMPT with better instructions for tool usage
     messages = [
         {
             "role": "system",
             "content": (
-                "Είσαι η ψυφιακή βοηθός της 'AI by DNA'. Πάντα πρέπει να παρουσιάζεσαι ως 'η ψυφιακή βοηθός της 'AI by DNA'' και να αναφέρεις ότι είσαι εδώ για να παρέχεις πληροφορίες για την εταιρεία μας, τις υπηρεσίες και τις λύσεις της. Ξεκίνα κάθε συνομιλία στα Ελληνικά, προσαρμόζοντας σε Αγγλικά μόνο αν ο χρήστης το ζητήσει ρητά. Οι απαντήσεις σου πρέπει να είναι 1-2 σύντομες προτάσεις, με ζεστό, ενθουσιώδη και προσιτό τόνο. Για λεπτομέρειες σχετικά με την AI by DNA, χρησιμοποίησε τη λειτουργία 'get_company_info'."
+                "Είσαι η ψυφιακή βοηθός της 'AI by DNA', με το όνομα Μυρτώ. Πάντα πρέπει να παρουσιάζεσαι ως 'η ψυφιακή βοηθός της AI by DNA' και να αναφέρεις ότι είσαι εδώ για να παρέχεις πληροφορίες για την εταιρεία μας, τις υπηρεσίες και τις λύσεις της. Ξεκίνα κάθε συνομιλία στα Ελληνικά, προσαρμόζοντας σε Αγγλικά μόνο αν ο χρήστης το ζητήσει ρητά.\n\n"
+                "Οι απαντήσεις σου πρέπει να είναι 1-2 σύντομες προτάσεις, με ζεστό, ενθουσιώδη και προσιτό τόνο. Όταν σε ρωτούν για πληροφορίες σχετικά με την AI by DNA, τις υπηρεσίες της, ή οτιδήποτε σχετικό με την εταιρεία, ΠΡΕΠΕΙ να χρησιμοποιήσεις τη λειτουργία 'get_company_info' για να αντλήσεις τις ακριβείς πληροφορίες. Μην επινοείς πληροφορίες για την εταιρεία."
             ),
         },
     ]
 
-    # ADD THE TOOL DEFINITION FOR THE COMPANY INFO
+    # IMPROVE TOOL DEFINITION with better description and optional parameters
     tools = [
         ChatCompletionToolParam(
             type="function",
             function={
                 "name": "get_company_info",
-                "description": "Προσφέρει λεπτομέρειες για την AI by DNA, τις υπηρεσίες και τις λύσεις της, με έμφαση στην καινοτομία, την αξιοπιστία και τη φιλική εξυπηρέτηση.",
+                "description": "Αντλεί λεπτομερείς πληροφορίες για την AI by DNA, τις υπηρεσίες και τις λύσεις της. Χρησιμοποίησε αυτή τη λειτουργία για κάθε ερώτηση σχετικά με την εταιρεία.",
                 "parameters": {
                     "type": "object",
-                    "properties": {}
+                    "properties": {
+                        "query_type": {
+                            "type": "string",
+                            "enum": ["general", "services", "testimonials", "contact"],
+                            "description": "Το είδος των πληροφοριών που ζητάει ο χρήστης (προαιρετικό)"
+                        }
+                    },
+                    "required": []
                 },
             },
         )
@@ -220,13 +228,21 @@ async def run_bot(
 
     await runner.run(task)
 
+# IMPROVED start callback that provides user feedback
 async def start_get_company_info(function_name, llm, context):
-    # Execute silently without notifying the user.
-    logger.debug(f"Silently executing get_company_info")
+    # Optionally notify the user that we're retrieving information
+    # await llm.push_frame(TTSSpeakFrame("Μια στιγμή, ανακτώ τις πληροφορίες για την AI by DNA."))
+    logger.debug(f"Executing get_company_info for context enhancement")
 
+# ENHANCED get_company_info function with error handling
 async def get_company_info(function_name, tool_call_id, args, llm, context, result_callback):
-    # Return the AI_by_DNA_greek company information.
-    await result_callback({"company_info": AI_by_DNA_greek})
+    try:
+        # For now, return all company information
+        await result_callback({"company_info": AI_by_DNA_greek})
+        logger.debug(f"Successfully retrieved and returned company information")
+    except Exception as e:
+        logger.error(f"Error in get_company_info: {str(e)}")
+        await result_callback({"error": "Συγγνώμη, δεν μπόρεσα να ανακτήσω τις πληροφορίες της εταιρείας."})
     
     
 
