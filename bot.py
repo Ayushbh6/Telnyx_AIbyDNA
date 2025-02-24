@@ -120,7 +120,7 @@ async def run_bot(
         ),
     )
 
-    llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4o", max_tokens=250, temperature=0.8)
+    llm = OpenAILLMService(api_key=os.getenv("OPENAI_API_KEY"), model="gpt-4o-mini", max_tokens=250, temperature=0.8)
 
     # REGISTER THE 'get_company_info' TOOL FUNCTION
     llm.register_function("get_company_info", get_company_info, start_callback=start_get_company_info)
@@ -199,12 +199,18 @@ async def run_bot(
     async def on_client_connected(transport, client):
         # Enable the background noise mixer
         await task.queue_frame(MixerEnableFrame(True))
-        # Kick off the conversation with a cheerful welcome
+        
+        # Create a specific greeting message to be spoken immediately
+        greeting_message = "Χαίρετε! Είμαι η Μυρτώ η ψυφιακή βοηθός της 'AI by DNA'. Πώς μπορώ να σας εξυπηρετήσω σήμερα;"
+        
+        # Queue a direct speech frame to be spoken immediately
+        await task.queue_frame(TTSSpeakFrame(greeting_message))
+        
+        # Add the greeting as an assistant message in the conversation history
         messages.append({
-            "role": "system",
-            "content": "Χαίρετε! Είμαι η Μυρτώ η ψυφιακή βοηθός της 'AI by DNA'. Πώς μπορώ να σας εξυπηρετήσω σήμερα;"
+            "role": "assistant",
+            "content": greeting_message
         })
-        await task.queue_frames([context_aggregator.user().get_context_frame()])
 
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
