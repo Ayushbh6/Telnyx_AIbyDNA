@@ -79,11 +79,8 @@ AI για Προσωποποιημένη Εμπειρία Καταναλωτή
 "Η AI by DNA φέρνει επανάσταση στον τρόπο επικοινωνίας των πληροφοριών προϊόντων στους πελάτες μας, μετατρέποντάς τις σε μια εμπειρία φυσικής συνομιλίας!"
 Σπύρος Μπόκιας
 Συνιδρυτής & CEO στην iPHARMA S.A.
-Γραφεία: Ελλάδα (Αθήνα) | Γερμανία (Φρανκφούρτη)
-Email: contact@aibydna.com
-Copyright © 2024-2025 AIbyDNA.com – Όλα τα δικαιώματα διατηρούνται.
+Γραφεία: Έχουμε γραφεία στην Ελλάδα στο Χαλάνδρι και στη Γερμανία στη Φρανκφούρτη.
 """
-
 
 async def run_bot(
     websocket_client,
@@ -105,7 +102,7 @@ async def run_bot(
     soundfile_mixer = SoundfileMixer(
         sound_files={"office": background_noise_path},
         default_sound="office",
-        volume=0.7,
+        volume=0.5,
     )
     
     transport = FastAPIWebsocketTransport(
@@ -128,7 +125,7 @@ async def run_bot(
     stt = DeepgramSTTService(
             api_key=os.getenv("DEEPGRAM_API_KEY"),
             live_options=LiveOptions(
-                language="el"
+                language="en"
             )
         )
             
@@ -150,8 +147,10 @@ async def run_bot(
         {
             "role": "system",
             "content": (
-                "Είσαι η ψυφιακή βοηθός της 'AI by DNA', με το όνομα Μυρτώ. Πάντα πρέπει να παρουσιάζεσαι ως 'η ψυφιακή βοηθός της AI by DNA' και να αναφέρεις ότι είσαι εδώ για να παρέχεις πληροφορίες για την εταιρεία μας, τις υπηρεσίες και τις λύσεις της. Ξεκίνα κάθε συνομιλία στα Ελληνικά, προσαρμόζοντας σε Αγγλικά μόνο αν ο χρήστης το ζητήσει ρητά.\n\n"
-                "Οι απαντήσεις σου πρέπει να είναι 1-2 σύντομες προτάσεις, με ζεστό, ενθουσιώδη και προσιτό τόνο. Όταν σε ρωτούν για πληροφορίες σχετικά με την AI by DNA, τις υπηρεσίες της, ή οτιδήποτε σχετικό με την εταιρεία, ΠΡΕΠΕΙ να χρησιμοποιήσεις τη λειτουργία 'get_company_info' για να αντλήσεις τις ακριβείς πληροφορίες. Μην επινοείς πληροφορίες για την εταιρεία."
+                # "Είσαι η ψηφιακή βοηθός της 'AI by DNA', με το όνομα Μυρτώ. Πάντα πρέπει να παρουσιάζεσαι ως 'η ψηφιακή βοηθός της AI by DNA' και να αναφέρεις ότι είσαι εδώ για να παρέχεις τηλεφωνικά πληροφορίες για την εταιρεία μας, τις υπηρεσίες και τις λύσεις της. Ξεκίνα κάθε συνομιλία στα Ελληνικά, προσαρμόζοντας σε Αγγλικά μόνο αν ο χρήστης το ζητήσει ρητά.\n\n"
+                # "Οι απαντήσεις σου πρέπει να είναι 1-2 σύντομες προτάσεις, με ζεστό, ενθουσιώδη και προσιτό τόνο. Όταν σε ρωτούν για πληροφορίες σχετικά με την AI by DNA, τις υπηρεσίες της, ή οτιδήποτε σχετικό με την εταιρεία, ΠΡΕΠΕΙ να χρησιμοποιήσεις τη λειτουργία 'get_company_info' για να αντλήσεις τις ακριβείς πληροφορίες. Μην επινοείς πληροφορίες για την εταιρεία."
+                "You are the digital assistant of 'AI by DNA,' named Myrto. You must always introduce yourself as 'the digital assistant of AI by DNA' and mention that you are here to provide phone-based information about our company, its services, and its solutions. Start every conversation in Greek, switching to English only if the user explicitly requests it.\n\n"
+                "Your responses should be 1-2 short sentences with a warm, enthusiastic, and approachable tone. When asked for information about AI by DNA, its services, or anything related to the company, you MUST use the 'get_company_info' function to retrieve accurate details. Do not invent any information about the company."
             ),
         },
     ]
